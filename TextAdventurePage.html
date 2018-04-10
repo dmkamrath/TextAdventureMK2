@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title> Text Adventure </title>
+
+
+<style>
+
+html
+{
+    background-color: grey;
+    background-size: cover;
+}
+
+.clearfix::after
+{
+	content: "";
+	clear: both;
+	display: table;
+}
+
+#progessBar::-webkit-progress-value { background: yellow; }
+#healthBar::-webkit-progress-value { background: red; }
+
+
+.progressBar
+{
+    border: 1px solid white;
+    width: 34vw;
+    height: 1vh;
+    background-color: red;
+    margin-left: .25vw;
+    margin-top: .25vh;
+    transition-duration: .4s;
+    float: left;
+    position: relative;
+    top: -1.5vh;
+}
+
+.healthBar
+{
+	border: 1px solid white;
+    width: 18vw;
+    height: 4vh;
+    padding-top: 0px;
+    background-color: white;
+    fill: blue;
+    margin-left: 1vw;
+    margin-top: .5vh;
+    float: right;
+    top: 1vh;
+}
+
+.actionlabel
+{
+	border: 1px solid white;
+	border-radius: 5px;
+	padding-left: .2vw;
+	padding-bottom: 0px;
+	width: 34vw;
+	height: 3vh;
+	color: black;
+	background-color: grey;
+	margin-left: .25vw;
+	margin-top: .5vh;
+	font-size: 1vw;
+	font: times;
+}
+
+.actionEntry
+{
+	border: 2px solid black;
+	border-radius: 5px;
+	margin-left: .75vw;
+	margin-top: .1vh;
+	margin-bottom: .1vh;
+	width: 35vw;
+	height: 6vh;
+	background-color: blue;
+	color: green;
+	float: left;
+}
+
+.storyBG
+{
+    background: black;
+    color: white;
+    position: relative;
+    height: 70vh;
+    padding: 15px;
+    border-radius: 15px 15px 15px 15px;
+    border-color: white;
+    border-width: 2px;
+    border-style: solid;
+    clear: left;
+}
+
+.actionFrame
+{
+	font: sans-serif;
+    background: white;
+    color: black;
+    height: 65vh;
+    width: 37vw;
+    padding: .5vw;
+    border-radius: 15px 15px 15px 15px;
+    border-color: grey;
+    border-width: 2px;
+    border-style: solid;
+    float: left;
+    position: relative;
+}
+
+.storyFrame
+{
+    background: white;
+    padding: .5vw;
+    color: black;
+    height: 65vh;
+    width: 50vw;
+    border-radius: 15px 15px 15px 15px;
+    border-color: grey;
+    border-width: 2px;
+    border-style: solid;
+    float: right;
+    position: relative;
+    font-family: "Arial Verdana";
+    overflow: auto;
+    scroll-behavior: auto;
+}
+
+.button 
+{
+    font-family: arial;
+    background: linear-gradient(white, #4d88ff);
+    border: 2px solid black;
+    color: white;
+    padding: 7px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+    transition-duration: 0.3s;
+    outline: none;
+    float:left;
+    margin-bottom: 10px;
+}
+
+.button:hover
+{
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.4),0 17px 50px 0 rgba(0,0,0,0.4);
+    transform: translate(0px,-6px);
+    border-radius: 30px;
+    opacity: 0.9;
+    color: black;
+    background: radial-gradient(white, #4d88ff);
+}
+
+.button:active
+{
+    transition-duration: .1s;
+    color: white;
+    transform: translate(0px, -2px);
+    border-color: white;
+    border-radius: 4px;
+    background: radial-gradient(#4d88ff, white);
+}
+
+.input1
+{
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.4),0 17px 50px 0 rgba(0,0,0,0.4);
+    font-family: arial;
+    transition-duration: .5s;
+    transition-timing-function: ease-out;
+    width: 50%;
+    top: 8vh;
+    left: 25%;
+    position: relative;
+    border: none;
+    border-top: 4px solid black;
+    border-bottom: 4px solid black;
+    clear: left;
+    clear: right;
+    outline: none;
+}
+
+.input1:hover
+{
+    transform: translate(0px,-3px);
+}
+
+.input1:focus
+{
+    box-shadow: 0 14px 18px 0 rgba(0,0,0,0.6),0 17px 50px 0 rgba(0,0,0,0.6);
+    border-color: #4d88ff;
+    border-radius: 7px;
+    transform: translate(0px,-10px);
+    height: 15px;
+}
+
+.input1:active
+{
+	
+}
+
+</style>
+</head>
+
+<body>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+<div>
+<button class="button" id="b1" onclick="startLogin()">Login</button>
+<button class="button" onclick="addToListBox()">Button</button>
+<button class="button" onclick="startPbar(100)">Button</button>
+<button class="button">Button</button>
+<input id ="ip"> ip address </input>
+<progress id="pbar1" value="35" max="100" class="healthBar">Test</progress>
+
+<div id = "mainBG" class="storyBG"></div>
+
+<input class="input1" id="inputBox" onfocus="inputFocused()" onblur="inputUnfocused()" onsubmit="sendMessage()"></input>
+</div>
+
+<script type="text/javascript">
+
+class ActionEntry
+{
+	constructor(id)
+	{
+		this.id = id;
+	}
+	cacheValues()
+	{
+		var oldBar = document.getElementById("pbarTAG" + this.id);
+		var oldText = document.getElementById("actionlabelTAG" + this.id).innerHTML;
+		var val = oldBar.value;
+		var max = oldBar.max;
+		this.cachedVal = oldBar.value;
+		this.cachedMax = oldBar.max;
+		this.cachedText = oldText;
+	}
+	reAdd()
+	{
+		var updatedEntry = buildActionEntry(this.id, this.cachedText, this.cachedVal, this.cachedMax);
+		var actionFrame = document.getElementById("actionFrame");
+		actionFrame.innerHTML += updatedEntry;
+	}
+}
+
+function initFrames()
+{
+	var storyBG = document.getElementById("mainBG");
+	mainBG.innerHTML += "<p id = \"actionFrame\" class = \"actionFrame\"></p>";
+	mainBG.innerHTML += "<p id = \"storyFrame\" class = \"storyFrame\"></p>";
+
+	addActionEntry(0, "Preparing for Adventure!", 30,100);
+}
+
+function addActionEntry(id, actionText, barCurrent, barMax)
+{
+	var newEntry = new ActionEntry(id);
+	var actionFrame = document.getElementById("actionFrame");
+	actionFrame.innerHTML += buildActionEntry(id, actionText, barCurrent, barMax);
+	tickPbar(newEntry);
+	actionEntries.push(newEntry);
+}
+
+function buildActionEntry(id, labelText, barCurrent, barMax)
+{
+	var entryID = id.toString();
+	var entryName = "actionEntryTAG" + entryID;
+	var labelName = "actionlabelTAG" + entryID;
+	var pbarName = "pbarTAG" + entryID;
+	var entryLabel = "<p id = \"" + labelName + "\" class = \"actionlabel\">" + labelText + "</p>";
+	var entryBar = "<progress id =\"" + pbarName + "\" value = \"" + barCurrent + "\" max = \"" + barMax + "\" class = \"progressBar\"></progress>";
+	var entryOuter = "<div id = \""  + entryName + "\" class = \"actionEntry\"> " + entryLabel + entryBar + "</div>";
+	return entryOuter;
+}
+
+function tickPbar(entry)
+{
+	var pbar = document.getElementById("pbarTAG" + entry.id);
+	if(pbar.value < pbar.max)
+	{
+		pbar.value += 1;
+		setTimeout(function() {tickPbar(entry)}, 50);
+	}
+	else
+	{
+		pbar.value = 0;
+		removeEntry(entry);
+	}
+}
+
+function removeEntry(entry)
+{
+	var i = actionEntries.indexOf(entry);
+	var newEntries = new Array();
+	actionEntries.forEach(function(item, index){
+		if(item != entry)
+		{
+			newEntries.push(item);
+		}
+	});
+	actionEntries = newEntries;
+	refreshActionEntries();
+}
+
+function refreshActionEntries()
+{
+	var actionFrame = document.getElementById("actionFrame");
+	actionEntries.forEach(function (item, index){
+		item.cacheValues();
+	});
+	actionFrame.innerHTML = "";
+	actionEntries.forEach(function (item, index){
+		item.reAdd();
+	});
+}
+
+initKeyListening();
+var webSocketSupport = "WebSocket" in window;
+var socket;
+var inputIsFocused;
+var cmdAutos = ["","",""];
+var cmdAutoIndex = 0;
+var lastCommand;
+var currentTime = 3590;
+var currentHour = 23;
+var currentDay = 1;
+var pbar = document.getElementById("pbar1");
+var currentEntryID = 0;
+
+var actionEntries = new Array();
+
+
+initPage();
+
+function initPage()
+{
+	initFrames();
+}
+
+
+
+function startLogin()
+{
+	var ipVal = document.getElementById("ip").value;
+	initWebSocket(ipVal.toString());
+    // var usrName = window.prompt("Enter your username","Username");
+    // if(usrName == null)
+    // {
+    //     alert("Login Failed");
+    // }
+    // else
+    // {
+    //     sendLoginInfo(usrName);
+    //     setTimeout(initialLoadDataRequest, 500);
+    // }
+}
+
+function initWebSocket(addr)
+{
+    if(webSocketSupport)
+    {
+        var port = "55777";
+        //var addr = "10.200.12.68";
+        //var addr = "192.168.0.4";
+        //var addr = "172.26.80.99";
+        var connStr = "ws://" + addr + ":" + port + "/echo";
+        try
+        {
+	        socket = new WebSocket(connStr);
+	        socket.onclose = function()
+	        {
+	            //alert("Socket Closed");
+	        };
+	        
+	        socket.onerror = function(error)
+	        {
+	            //alert("Socket Error");
+	        };
+
+	        socket.onmessage = function(evt)
+	        {
+	            recieveMessage(evt.data);
+	        };
+    	}
+    	catch(err)
+    	{
+    		alert("Error!" + err.message);
+    	}
+    }
+    else
+    {
+        alert("No Support for websocket");
+    }
+}
+
+function recieveMessage(data)
+{
+    processMessage(data);
+}
+
+function inputFocused()
+{
+    inputIsFocused = true;
+}
+
+function inputUnfocused()
+{
+    inputIsFocused = false;
+}
+
+function sendMessage(message)
+{
+    socket.send(message);
+}
+
+function initKeyListening()
+{
+    document.addEventListener("keydown", keyDownHandler, false);
+}
+
+function enterPressed()
+{
+    if(inputIsFocused)
+    {
+        var ib = document.getElementById("inputBox");
+        if(ib.value.charAt(0) == '/')
+        {
+            consoleCmd(ib.value.slice(0,1));
+            return;
+        }
+        cmdAutos[2] = cmdAutos[1];
+        cmdAutos[1] = ib.value;
+        lastCommand = ib.value;
+        sendMessage(ib.value);
+        ib.value = "";
+    }
+}
+
+function consoleCmd(cmd)
+{
+    var cmdParts = cmd.split(' ');
+}
+
+function keyDownHandler(e)
+{
+    if(e.keyCode == 13) //code for enter
+    {
+        enterPressed();
+    }
+    if(e.keyCode == 38) //up arrow
+    {
+        if(cmdAutoIndex < cmdAutos.length)
+            cmdAutoIndex ++;
+        document.getElementById("inputBox").value = cmdAutos[cmdAutoIndex];
+    }
+    if(e.keyCode == 40)
+    {
+        if(cmdAutoIndex > 0)
+            cmdAutoIndex --;
+        document.getElementById("inputBox").value = cmdAutos[cmdAutoIndex];
+    }
+}
+
+//STUFF FOR PROCESSING EVENTS
+
+function processMessage(msg)
+{
+    var token = msg[0];
+    var data = msg.slice(1,msg.length);
+    switch(token)
+    {
+        case('s'):
+        {
+            storyUpdate(data);
+            break;
+        }
+        case('g'):
+        {
+            startPbar(data);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+function storyUpdate(update)
+{
+	var elem = document.getElementById("storyFrame");
+	var atBottom = elem.scrollHeight - elem.clientHeight <= elem.scrollTop + 1;
+    var story = document.getElementById("storyFrame").innerHTML += update + "<BR/><BR/>";
+    autoScroll(atBottom);
+}
+
+function autoScroll(atBottom)
+{
+	var elem = document.getElementById("storyFrame");
+	if(atBottom)
+		elem.scrollTop = elem.scrollHeight - elem.clientHeight;
+}
+
+function startPbar(barData)
+{
+    var data = barData.split('|');
+    barMax = Number(data[1]);
+    addActionEntry(9,data[0],0,barMax);
+}
+
+</script>
+</body>
+
+</html>
